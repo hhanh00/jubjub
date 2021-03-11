@@ -11,14 +11,18 @@ use rand_core::RngCore;
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
 
 use crate::util::{adc, mac, sbb};
+use serde::{Serialize, Deserialize};
+use serde_hex::{SerHex, StrictCap};
 
 /// Represents an element of the scalar field $\mathbb{F}_r$ of the Jubjub elliptic
 /// curve construction.
 // The internal representation of this type is four 64-bit unsigned
 // integers in little-endian order. Elements of Fr are always in
 // Montgomery form; i.e., Fr(a) = aR mod r, with R = 2^256.
-#[derive(Clone, Copy, Eq)]
-pub struct Fr(pub(crate) [u64; 4]);
+#[derive(Clone, Copy, Eq, Serialize, Deserialize)]
+pub struct Fr(
+    #[serde(with="SerHex::<StrictCap>")]
+    pub(crate) [u64; 4]);
 
 impl fmt::Debug for Fr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

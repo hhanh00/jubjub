@@ -16,7 +16,6 @@
 //!
 //! This crate uses the `subtle` crate to perform constant-time operations.
 
-#![no_std]
 // Catch documentation errors caused by code changes.
 #![deny(intra_doc_link_resolution_failure)]
 #![deny(missing_debug_implementations)]
@@ -45,6 +44,8 @@ use group::{
 };
 use rand_core::RngCore;
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
+use serde::{Serialize, Deserialize};
+use serde_hex::{SerHex, StrictCap};
 
 #[cfg(feature = "alloc")]
 use group::WnafGroup;
@@ -124,13 +125,31 @@ impl ConditionallySelectable for AffinePoint {
 /// * Add it to an `ExtendedPoint`, `AffineNielsPoint` or `ExtendedNielsPoint`.
 /// * Double it using `double()`.
 /// * Compare it with another extended point using `PartialEq` or `ct_eq()`.
-#[derive(Clone, Copy, Debug, Eq)]
+#[derive(Clone, Copy, Debug, Eq, Serialize, Deserialize)]
 pub struct ExtendedPoint {
+    #[serde(with="FqDef")]
     u: Fq,
+    #[serde(with="FqDef")]
     v: Fq,
+    #[serde(with="FqDef")]
     z: Fq,
+    #[serde(with="FqDef")]
     t1: Fq,
+    #[serde(with="FqDef")]
     t2: Fq,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(remote="Fq")]
+struct FqDef(
+    #[serde(getter="Fq::to_bytes")]
+    [u8; 32]
+);
+
+impl From<FqDef> for Fq {
+    fn from(s: FqDef) -> Self {
+        Fq::from_bytes(&s.0).unwrap()
+    }
 }
 
 impl fmt::Display for ExtendedPoint {
