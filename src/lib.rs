@@ -331,6 +331,16 @@ pub struct ExtendedNielsPoint {
     t2d: Fq,
 }
 
+impl ExtendedNielsPoint {
+    /// Copy to a flat binary slice
+    pub fn copy_to_slice(&self, dest: &mut [u8]) {
+        dest[0..32].copy_from_slice(&self.v_plus_u.to_bytes());
+        dest[32..64].copy_from_slice(&self.v_minus_u.to_bytes());
+        dest[64..96].copy_from_slice(&self.z.to_bytes());
+        dest[96..128].copy_from_slice(&self.t2d.to_bytes());
+    }
+}
+
 impl ConditionallySelectable for ExtendedNielsPoint {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
         ExtendedNielsPoint {
