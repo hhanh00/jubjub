@@ -383,6 +383,14 @@ impl ExtendedNielsPoint {
     pub fn multiply_bits(&self, by: &[u8; 32]) -> ExtendedPoint {
         self.multiply(by)
     }
+
+    /// Export inner value to byte slice
+    pub fn copy_to_slice(&self, dst: &mut [u8]) {
+        dst[0..32].copy_from_slice(&self.v_plus_u.to_bytes());
+        dst[32..64].copy_from_slice(&self.v_minus_u.to_bytes());
+        dst[64..96].copy_from_slice(&self.z.to_bytes());
+        dst[96..128].copy_from_slice(&self.t2d.to_bytes());
+    }
 }
 
 impl<'a, 'b> Mul<&'b Fr> for &'a ExtendedNielsPoint {
